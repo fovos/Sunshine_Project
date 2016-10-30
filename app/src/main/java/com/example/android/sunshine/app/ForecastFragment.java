@@ -1,8 +1,12 @@
 package com.example.android.sunshine.app;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -31,7 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
- * A placeholder fragment containing a simple view.
+ * A placeholder fragment containing a simple view.Arxika tin eixa mesa stin MainActivity alla meta tin metefera eksw se ksexwristo arxeio
  */
 public class ForecastFragment extends Fragment {
 
@@ -66,13 +70,20 @@ public class ForecastFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
-            new FetchWeatherTask().execute("264371");
+            updateWeather();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void updateWeather(){
+        //apoktw prosvasi sta preferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        //pernw to location key pou exw apothikeusei sta settings alliws to default an den vgalei tpt
+        String location_id=prefs.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+        new FetchWeatherTask().execute(location_id);   //api city_id
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -92,8 +103,8 @@ public class ForecastFragment extends Fragment {
         //prwto arg einai to context tou app
         //deutero arg einai to layout file
         //trito arg einai to item pou tha ginei host to kathe listitem
-        //tetarto arg einai to arraylist
-        mForecastAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekforecast);
+        //tetarto arg einai to arraylist (an eixa data tha evaza auto, alliws vazw new arraylist giati tha
+        mForecastAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, new ArrayList<String>());
 
 
         //reference to Listview element
@@ -112,7 +123,10 @@ public class ForecastFragment extends Fragment {
                 String forecast=mForecastAdapter.getItem(i);
 
                 //epeidi eimai se fragment to context einai sto activity, ara oxi this alla getActivity()
-                Toast.makeText(getActivity(),forecast,Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(),forecast,Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(getActivity(),DetailActivity.class);
+                intent.putExtra(Intent.EXTRA_TEXT,forecast);
+                startActivity(intent);
             }
         });
         //associate the layout to the fragment
@@ -346,5 +360,13 @@ public class ForecastFragment extends Fragment {
                 lstview.setAdapter(mForecastAdapter);
             }
         }
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+
+        //opote ekkinei to fragment ginetai updateweather.
+        updateWeather();
     }
 }
