@@ -29,6 +29,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         // updated when the preference changes.
         //when the user changes the value, the summary value under the preference will be updated
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_temp_key)));
     }
 
     /**
@@ -40,12 +41,9 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(this);
 
-        // Trigger the listener immediately with the preference's
+        // Manual Trigger the listener immediately with the preference's
         // current value. Thelw me to fortwnei to activity na fainetai i timi tou preference.
-        onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        onPreferenceChange(preference,PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
     }
 
     //event handler gia opote allazei to preference
@@ -57,12 +55,15 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
             // For list preferences, look up the correct display value in
             // the preference's 'entries' list (since they have separate labels/values).
             ListPreference listPreference = (ListPreference) preference;
+            //find index of selected value
             int prefIndex = listPreference.findIndexOfValue(stringValue);
             if (prefIndex >= 0) {
+                //set summary the value of the selected index of the ListPreference
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
         } else {
             // For other preferences, set the summary to the value's simple string representation.
+            //i anafora sto preference den einai mesw xml element alla ws preference me sigkekrimeno key
             preference.setSummary(stringValue);
         }
         return true;

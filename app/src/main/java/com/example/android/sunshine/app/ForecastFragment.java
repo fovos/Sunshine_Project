@@ -35,7 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
- * A placeholder fragment containing a simple view.Arxika tin eixa mesa stin MainActivity alla meta tin metefera eksw se ksexwristo arxeio
+ * A fragment containing a simple view.Arxika tin eixa mesa stin MainActivity alla meta tin metefera eksw se ksexwristo arxeio
+ * Apotelei to fragment to opoio mporw na to valw se opoio Activity thelw
  */
 public class ForecastFragment extends Fragment {
 
@@ -82,7 +83,8 @@ public class ForecastFragment extends Fragment {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         //pernw to location key pou exw apothikeusei sta settings alliws to default an den vgalei tpt
         String location_id=prefs.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
-        new FetchWeatherTask().execute(location_id);   //api city_id
+        String metric_system=prefs.getString(getString(R.string.pref_temp_key),getString(R.string.pref_temp_default));
+        new FetchWeatherTask().execute(location_id,metric_system);   //api location_id, metric_system
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -94,9 +96,6 @@ public class ForecastFragment extends Fragment {
         //alliws tha to perasoume argotera
         //inflate layout and associate to the fragment via the return statement
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-
-        ArrayList<String> weekforecast = new ArrayList<>();
 
         //create the adapter for the listview
         //Adapters translate a data source into views for a ListView to display
@@ -251,7 +250,6 @@ public class ForecastFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
             String format = "json";
-            String units = "metric";
             int numDays = 7;
 
             try {
@@ -269,7 +267,7 @@ public class ForecastFragment extends Fragment {
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                         .appendQueryParameter(QUERY_PARAM, params[0])       //edw pernaw tin prwti (kai monadiki) parametro
                         .appendQueryParameter(FORMAT_PARAM, format)
-                        .appendQueryParameter(UNITS_PARAM, units)
+                        .appendQueryParameter(UNITS_PARAM, params[1])
                         .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
                         .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
                         .build();

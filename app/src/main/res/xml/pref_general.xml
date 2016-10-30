@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--Ousiastika einai to layout gia to Settigns Activity.
+Alla epeidi einai idiateros tipos Activity, ta preferences akoloythoun diko tous tropo dimiourgias-->
+
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
