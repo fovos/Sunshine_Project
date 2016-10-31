@@ -52,13 +52,14 @@ public class ForecastFragment extends Fragment {
         super.onCreate(savedInstanceState);
         //prwta ekteleitai i onCreate ki epeita i onCreateView
         //add this line in order for this fragment to handle menu events and show the extra menuitems
+        //EXTRA MENU ITEMS POWERED BY THIS FRAGMENT
         setHasOptionsMenu(true);
 
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the detail to the menu
+        // Inflate the detail MENU ITEMS to the menu
         inflater.inflate(R.menu.detail, menu);
     }
 
@@ -78,14 +79,19 @@ public class ForecastFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateWeather(){
+    //METHODOS GIA UPDATE LISTVIEW MESV PLIROFORIAS SHAREDPREFERENCES
+    private void updateWeather() {
         //apoktw prosvasi sta preferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         //pernw to location key pou exw apothikeusei sta settings alliws to default an den vgalei tpt
-        String location_id=prefs.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
-        String metric_system=prefs.getString(getString(R.string.pref_temp_key),getString(R.string.pref_temp_default));
-        new FetchWeatherTask().execute(location_id,metric_system);   //api location_id, metric_system
+        //PRWTO ARG EINAI TO KEY
+        //DEYTERO ARG EINAI DEFAULT VALUE
+        //EPISTREFEI TO VALUE GIA TO SIGKEKRIMENO KEY
+        String location_id = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+        String metric_system = prefs.getString(getString(R.string.pref_temp_key), getString(R.string.pref_temp_default));
+        new FetchWeatherTask().execute(location_id, metric_system);   //api location_id, metric_system
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -119,12 +125,12 @@ public class ForecastFragment extends Fragment {
 
                 //to i einai to position
                 //pernw to item sto i position kai to dinw se string variable
-                String forecast=mForecastAdapter.getItem(i);
+                String forecast = mForecastAdapter.getItem(i);
 
                 //epeidi eimai se fragment to context einai sto activity, ara oxi this alla getActivity()
                 //Toast.makeText(getActivity(),forecast,Toast.LENGTH_LONG).show();
-                Intent intent=new Intent(getActivity(),DetailActivity.class);
-                intent.putExtra(Intent.EXTRA_TEXT,forecast);
+                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                intent.putExtra(Intent.EXTRA_TEXT, forecast);
                 startActivity(intent);
             }
         });
@@ -152,7 +158,16 @@ public class ForecastFragment extends Fragment {
         /**
          * Prepare the weather high/lows for presentation.
          */
-        private String formatHighLows(double high, double low) {
+
+        private String formatHighLows(double high, double low, String unitType) {
+
+            if (unitType.equals(getString(R.string.pref_units_imperial))) {
+                high = (high * 1.8) + 32;
+                low = (low * 1.8) + 32;
+            } else if (!unitType.equals(getString(R.string.pref_units_metric))) {
+                Log.d(LOG_TAG, "Unit type not found: " + unitType);
+            }
+
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
@@ -193,6 +208,17 @@ public class ForecastFragment extends Fragment {
             dayTime = new Time();
 
             String[] resultStrs = new String[numDays];
+
+            // Data is fetched in Celsius by default.
+            // If user prefers to see in Fahrenheit, convert the values here.
+            // We do this rather than fetching in Fahrenheit so that the user can
+            // change this option without us having to re-fetch the data once
+            // we start storing the values in a database.
+            SharedPreferences sharedPrefs =PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+            String unitType = sharedPrefs.getString(getString(R.string.pref_temp_key),getString(R.string.pref_units_metric));
+
+
             for (int i = 0; i < weatherArray.length(); i++) {
                 // For now, using the format "Day, description, hi/low"
                 String day;
@@ -220,7 +246,7 @@ public class ForecastFragment extends Fragment {
                 double high = temperatureObject.getDouble(OWM_MAX);                                     //list[i].main["temp_max"]
                 double low = temperatureObject.getDouble(OWM_MIN);                                      //list[i].main["temp_min"]
 
-                highAndLow = formatHighLows(high, low);
+                highAndLow = formatHighLows(high, low,unitType);
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;                         //table saving the created strings with weather output
             }
 
@@ -234,6 +260,7 @@ public class ForecastFragment extends Fragment {
         }
 
         //to String ... params prepei ws tipos na simfwnei me to prwto argument sto asyncTask
+        //to String[] prepei na simfwnei me
         @Override
         protected String[] doInBackground(String... params) {
 
@@ -339,16 +366,16 @@ public class ForecastFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String[] result){      //to argument tha prepei na simfwnei me to trito argument tou asycTask.
+        protected void onPostExecute(String[] result) {      //to argument tha prepei na simfwnei me to trito argument tou asycTask.
             //ektelesi sto main thread
-            if(result!=null){
+            if (result != null) {
                 mForecastAdapter.clear();   //clear the adapter from previous data
                 //den xreiazetai neo adapter
                 //den xreiazetai na sindesw adapter me UI elements ksana, diladi na ton arxikopoihsw
                 //xreiazetai na ton gemisw me nea dedomena MONO
                 //i arxikopoihsh egine sto main thread (onCreate) tou fragment kai mas arkei
 
-                for(String dayforecastStr:result){
+                for (String dayforecastStr : result) {
                     mForecastAdapter.add(dayforecastStr);
                 }
 
@@ -361,7 +388,7 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
 
         //opote ekkinei to fragment ginetai updateweather.

@@ -3,16 +3,24 @@ package com.example.android.sunshine.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.support.v7.widget.ShareActionProvider;
+
+
 
 
 public class DetailActivity extends ActionBarActivity {
+
+    //FIELDS
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +39,7 @@ public class DetailActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         getMenuInflater().inflate(R.menu.detail, menu);
+
         return true;
     }
 
@@ -56,7 +65,35 @@ public class DetailActivity extends ActionBarActivity {
      */
     public static class DetailFragment extends Fragment {
 
+        //FIELDS
+        private ShareActionProvider mShareActionProvider;
+        private static final String FORECAST_SHARE_HASHTAG="#SunshineApp";
+        private String mFOrecastStr;
+
         public DetailFragment() {
+            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            inflater.inflate(R.menu.detailfragment, menu);
+
+            //Retrieve the share menu item
+            MenuItem menuItem=menu.findItem(R.id.menu_item_share);
+
+            //Get the provider and hold on to it  to set/change  the share intent
+            // Fetch reference to the share action provider
+            mShareActionProvider=(ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+            if(mShareActionProvider!=null){
+                //ShareActionProvider does not respond to onOptionsItemSelected() events, so you set the share action provider as soon as it is possible.
+                mShareActionProvider.setShareIntent(createshareForecastIntent());
+            }
+            else{
+                Log.e("Error","Share Action Provider is null?");
+            }
+
         }
 
         @Override
@@ -70,10 +107,25 @@ public class DetailActivity extends ActionBarActivity {
             //edw mesa omws prepei na xrisimopoihsw auti ti methodo dioti prepei na anaferthw sto activity
             Intent intent=getActivity().getIntent();
             if(intent!=null && intent.hasExtra(Intent.EXTRA_TEXT)){
-                String forecast=intent.getStringExtra(Intent.EXTRA_TEXT);
-                ((TextView)rootView.findViewById(R.id.details_Text)).setText(forecast);
+                mFOrecastStr=intent.getStringExtra(Intent.EXTRA_TEXT);
+                ((TextView)rootView.findViewById(R.id.details_Text)).setText(mFOrecastStr);
             }
+
             return rootView;
+        }
+
+        private Intent createshareForecastIntent(){
+            Intent sharedintent= new Intent(Intent.ACTION_SEND);
+            //i epomeni entoli simantiki. SImainei oti to app pou tha anoiksei gia na kanei handle to intent
+            //den tha prosthesei to activity sto stack. An ginotan kati tetoio, otan o xristis patouse back tha ekleine tin efarmogi handler.
+            //Wstoso twra tha epistrepsei stin efarmogi mas!!!
+            sharedintent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+
+            //we are going to share plain text
+            sharedintent.setType("text/plain");
+            sharedintent.putExtra(Intent.EXTRA_TEXT,mFOrecastStr+FORECAST_SHARE_HASHTAG);
+
+            return sharedintent;
         }
     }
 }
