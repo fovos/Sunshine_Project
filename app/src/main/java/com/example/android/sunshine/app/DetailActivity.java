@@ -15,7 +15,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.support.v7.widget.ShareActionProvider;
 
-
+/**
+ * Prokeitai gia to activity to opoio emfanizei tin prognwsi gia sigkekrimeni mera.
+ * Proerxetai apo to klik pou kanie o xristis se sigkekrimeno list item toy FOrecastFragment
+ * Perilamvanei Fragment.
+ * Ylopoiei SHare Action Provider.
+ */
 
 
 public class DetailActivity extends ActionBarActivity {
@@ -71,6 +76,7 @@ public class DetailActivity extends ActionBarActivity {
         private String mFOrecastStr;
 
         public DetailFragment() {
+            //tin entoli auti tha mporousa na tin entaksw kai stin onCreate()
             setHasOptionsMenu(true);
         }
 

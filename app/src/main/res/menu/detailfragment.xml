@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="nttp://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!--This delegates responsibility for the item's appearance and function to ShareActionProvider.
     However, you will need to tell the provider what you would like to share-->
@@ -8,6 +8,5 @@
         android:id="@+id/menu_item_share"
         app:showAsAction="always"
         android:title="Share"
-        android:icon="@android:drawable/ic_menu_share"
         app:actionProviderClass="android.support.v7.widget.ShareActionProvider" />
 </menu>
