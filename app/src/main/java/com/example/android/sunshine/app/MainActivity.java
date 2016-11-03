@@ -77,6 +77,7 @@ public class MainActivity extends ActionBarActivity {
                 .appendQueryParameter("q",location)
                 .build();
 
+        //Implicit Intent for Google Maps
         Intent intent=new Intent(Intent.ACTION_VIEW);
 
         Log.v("Uri",location.toString());

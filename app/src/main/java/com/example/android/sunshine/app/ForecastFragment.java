@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
@@ -19,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,12 +49,14 @@ public class ForecastFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //prwta ekteleitai i onCreate ki epeita i onCreateView
+
         //add this line in order for this fragment to handle menu events and show the extra menuitems
         //EXTRA MENU ITEMS POWERED BY THIS FRAGMENT
         setHasOptionsMenu(true);
 
     }
 
+    //EXTRA MENU ITEMS ADDED FROM THIS FRAGMENT
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the detail MENU ITEMS to the menu
@@ -382,6 +382,7 @@ public class ForecastFragment extends Fragment {
                 //mForecastAdapter.addAll(result);      //more efficient code.
 
                 //set the adapter to that listview element
+                //fortwnei to listview me items
                 lstview.setAdapter(mForecastAdapter);
             }
         }
