@@ -17,6 +17,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.v("On Create"," DONE");
+
         //inflate a layout and associate to the activity
         setContentView(R.layout.activity_main);
 
@@ -94,6 +96,41 @@ public class MainActivity extends ActionBarActivity {
             Log.e("MainClass Error", "Couldn't call " + location + ", no receiving apps installed!");
         }
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Log.v("On Start"," DONE");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Log.v("On Resume"," DONE");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        Log.v("On Pause"," DONE");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        Log.v("On Stop"," DONE");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Log.v("On Destroy"," DONE");
     }
 
 }

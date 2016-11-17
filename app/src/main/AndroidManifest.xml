@@ -19,7 +19,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".DetailActivity"
-            android:theme="@style/Theme.AppCompat.Light"
             android:label="Details Activity"
             android:parentActivityName=".MainActivity">
             <!-- Parent activity meta-data to support 4.0 and lower -->
