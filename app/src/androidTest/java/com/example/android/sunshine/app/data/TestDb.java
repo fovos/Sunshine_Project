@@ -164,21 +164,36 @@ public class TestDb extends AndroidTestCase {
         // and our testLocationTable can only return void because it's a test.
 
         // First step: Get reference to writable database
+        WeatherDbHelper dbhelper=new WeatherDbHelper(mContext); //create db
+        SQLiteDatabase db=dbhelper.getWritableDatabase();       //refer to database so u can wrte in it
 
         // Create ContentValues of what you want to insert
-        // (you can use the createWeatherValues TestUtilities function if you wish)
+        ContentValues testvalues=TestUtilities.createWeatherValues(testLocationTable());
 
         // Insert ContentValues into database and get a row ID back
+        long weatherRowId=db.insert(WeatherContract.WeatherEntry.TABLE_NAME,null,testvalues);
 
         // Query the database and receive a Cursor back
+        assertTrue(weatherRowId!=-1);
+        Cursor cursor=db.query(WeatherContract.WeatherEntry.TABLE_NAME,
+                null,   //all columns
+                null,   //columns for where clause
+                null,   //values for where clause
+                null,   //columns to group by
+                null,   //columns to filter by row groups
+                null);  //sort order
 
         // Move the cursor to a valid database row
+        assertTrue("Error : No Records returned from weather query",cursor.moveToFirst());
 
         // Validate data in resulting Cursor with the original ContentValues
         // (you can use the validateCurrentRecord function in TestUtilities to validate the
         // query if you like)
+        assertFalse("Error : More than one record returned from weather query",cursor.moveToNext());
 
         // Finally, close the cursor and database
+        cursor.close();
+        db.close();
     }
 
 
