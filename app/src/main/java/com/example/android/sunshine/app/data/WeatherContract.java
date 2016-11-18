@@ -19,6 +19,7 @@ import android.provider.BaseColumns;
 import android.text.format.Time;
 
 /**
+ * Database Contract -- 
  * Defines table and column names for the weather database.
  */
 public class WeatherContract {
@@ -43,7 +44,9 @@ public class WeatherContract {
 
     }
 
-    /* Inner class that defines the table contents of the weather table */
+    /* Inner class that defines the table contents of the weather table
+    * Prokeitai gia mia inner klasi i opoia exei ta xaraktiristika tou pinaka pou theloume
+    * na dimiourgisoume, opws onoma pinaka kai onomata pediwn*/
     public static final class WeatherEntry implements BaseColumns {
 
         public static final String TABLE_NAME = "weather";
