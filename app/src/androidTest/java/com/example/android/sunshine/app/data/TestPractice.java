@@ -12,10 +12,10 @@ public class TestPractice extends AndroidTestCase {
     }
 
     public void testThatDemonstratesAssertions() throws Throwable {
-        int a = 5;
+        int a = 15;
         int b = 3;
-        int c = 5;
-        int d = 10;
+        int c = 15;
+        int d = 20;
 
         assertEquals("X should be equal", a, c);
         assertTrue("Y should be true", d > a);
@@ -26,6 +26,9 @@ public class TestPractice extends AndroidTestCase {
         }
     }
 
+    /*
+        This gets run after every test.
+     */
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();

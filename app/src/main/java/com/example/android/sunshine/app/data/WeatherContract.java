@@ -15,11 +15,17 @@
  */
 package com.example.android.sunshine.app.data;
 
+import android.content.ContentValues;
 import android.provider.BaseColumns;
 import android.text.format.Time;
 
 /**
- * Database Contract -- 
+ * https://developer.android.com/reference/android/provider/BaseColumns.html
+ * Database Contract --
+ * It is an agreement between our Data Model and our Views, describing how our data are stored.
+ * We use inner classes for the creation of Weather and Location Tables
+ * We don't have to have already created the database. This will happen through the WeatherDbHelper class
+ * which extends the SQLiteOpenHelper class.
  * Defines table and column names for the weather database.
  */
 public class WeatherContract {
@@ -40,8 +46,14 @@ public class WeatherContract {
         done for WeatherEntry)
      */
     public static final class LocationEntry implements BaseColumns {
+        //constant table name
         public static final String TABLE_NAME = "location";
 
+        //constant column names
+        public static final String COLUMN_LOCATION_SETTING="location_Setting";
+        public static final String COLUMN_COORD_LAT="coord_lat";
+        public static final String COLUMN_COORD_LONG="coord_long";
+        public static final String COLUMN_CITY_NAME="city_name";
     }
 
     /* Inner class that defines the table contents of the weather table
@@ -52,6 +64,7 @@ public class WeatherContract {
         public static final String TABLE_NAME = "weather";
 
         // Column with the foreign key into the location table.
+        //will be used as foreign key to locationentry COLUMN_LOC_SETTING
         public static final String COLUMN_LOC_KEY = "location_id";
         // Date, stored as long in milliseconds since the epoch
         public static final String COLUMN_DATE = "date";

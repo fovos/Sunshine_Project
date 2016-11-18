@@ -23,13 +23,21 @@ import com.example.android.sunshine.app.data.WeatherContract.LocationEntry;
 import com.example.android.sunshine.app.data.WeatherContract.WeatherEntry;
 
 /**
+ * https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html
  * Manages a local database for weather data.
+ * It contains code to create and initialize the Database
+ * You create a subclass implementing onCreate(SQLiteDatabase), onUpgrade(SQLiteDatabase, int, int) and optionally onOpen(SQLiteDatabase),
+ * and this class takes care of opening the database if it exists, creating it if it does not, and upgrading it as necessary.
+ * Transactions are used to make sure the database is always in a sensible state.
+ * This class makes it easy for ContentProvider implementations to defer opening and upgrading the database until first use,
+ * to avoid blocking application startup with long-running database upgrades.
  */
 public class WeatherDbHelper extends SQLiteOpenHelper {
 
-    // If you change the database schema, you must increment the database version.
+    // If you change the database schema (for example, in releasing new APK with updated schema),
+    // you must manually increment the database version.
+    // Constant for DB version and DB Name that pass to the class constructor
     private static final int DATABASE_VERSION = 2;
-
     static final String DATABASE_NAME = "weather.db";
 
     public WeatherDbHelper(Context context) {
@@ -38,6 +46,8 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        // Called when the database is created for the first time.
+        //WEATHER Table CREATION
         final String SQL_CREATE_WEATHER_TABLE = "CREATE TABLE " + WeatherEntry.TABLE_NAME + " (" +
                 // Why AutoIncrement here, and not above?
                 // Unique keys will be auto-generated in either case.  But for weather
@@ -70,6 +80,17 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
                 WeatherEntry.COLUMN_LOC_KEY + ") ON CONFLICT REPLACE);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_WEATHER_TABLE);
+
+        //LOCATION Table CREATION
+        final String SQL_CREATE_LOCATION_TABLE= "CREATE TABLE "+LocationEntry.TABLE_NAME+" ("+
+                LocationEntry._ID+" INTEGER PRIMARY KEY,"+
+                LocationEntry.COLUMN_LOCATION_SETTING+" TEXT UNIQUE NOT NULL, "+
+                LocationEntry.COLUMN_CITY_NAME+" TEXT NOT NULL, "+
+                LocationEntry.COLUMN_COORD_LAT+ " REAL NOT NULL, "+
+                LocationEntry.COLUMN_COORD_LONG+ " REAL NOT NULL "+
+                " );";
+
+        sqLiteDatabase.execSQL(SQL_CREATE_LOCATION_TABLE);
     }
 
     @Override
@@ -80,8 +101,12 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
         // It does NOT depend on the version number for your application.
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
+
+        //drop tables+data
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocationEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeatherEntry.TABLE_NAME);
+
+        //recreate tables without data
         onCreate(sqLiteDatabase);
     }
 }
