@@ -19,6 +19,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import java.util.HashSet;
 
@@ -120,6 +121,8 @@ public class TestDb extends AndroidTestCase {
         ContentValues testvalues=TestUtilities.createNorthPoleLocationValues();
 
         // Insert ContentValues into database and get a row ID back
+        //epistrefei to LocationEntry._ID pou eisigage o algorithmos. Dioti
+        //den exoume valei manually tin timi tou primary key sto testvalues.
         long locationRowId=db.insert(WeatherContract.LocationEntry.TABLE_NAME,null,testvalues);
 
         // Query the database and receive a Cursor back
@@ -131,6 +134,8 @@ public class TestDb extends AndroidTestCase {
                 null,   //columns to group by
                 null,   //columns to filter by row groups
                 null);  //sort order
+
+        cursor.moveToFirst();
 
         // Move the cursor to a valid database row
         assertTrue("Error : No Records returned from location query",cursor.moveToFirst());
@@ -169,9 +174,11 @@ public class TestDb extends AndroidTestCase {
 
         // Create ContentValues of what you want to insert
         ContentValues testvalues=TestUtilities.createWeatherValues(testLocationTable());
+        ContentValues testvalues2=TestUtilities.createWeatherValues2();
 
         // Insert ContentValues into database and get a row ID back
         long weatherRowId=db.insert(WeatherContract.WeatherEntry.TABLE_NAME,null,testvalues);
+        long weatherRowId2=db.insert(WeatherContract.WeatherEntry.TABLE_NAME,null,testvalues2);
 
         // Query the database and receive a Cursor back
         assertTrue(weatherRowId!=-1);
@@ -183,6 +190,10 @@ public class TestDb extends AndroidTestCase {
                 null,   //columns to filter by row groups
                 null);  //sort order
 
+
+        cursor.moveToFirst();
+        Log.v("Cursor count",String.valueOf(cursor.getCount()));
+        Log.v("Cursor Result",String.valueOf(cursor.getString(cursor.getColumnIndex(WeatherContract.WeatherEntry._ID))));
         // Move the cursor to a valid database row
         assertTrue("Error : No Records returned from weather query",cursor.moveToFirst());
 
