@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 public class WeatherProvider extends ContentProvider {
 
@@ -95,36 +96,44 @@ public class WeatherProvider extends ContentProvider {
 
     private Cursor getWeatherByLocationSettingAndDate(
             Uri uri, String[] projection, String sortOrder) {
+
+        //apomonwnw to location string tou URI
         String locationSetting = WeatherContract.WeatherEntry.getLocationSettingFromUri(uri);
+        //apomonwnw to date long tou URI
         long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
 
+        //epistrefw query results me tin morfi cursor, sin parameters
+        //edw me tin voitheia tou sLocationSettingAndDaySelection dimiourgw to sqlite query
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
-                sLocationSettingAndDaySelection,
+                sLocationSettingAndDaySelection,    //filter
                 new String[]{locationSetting, Long.toString(date)},
                 null,
-                null,
+                null,   
                 sortOrder
         );
     }
 
     /*
-        Students: Here is where you need to create the UriMatcher. This UriMatcher will
-        match each URI to the WEATHER, WEATHER_WITH_LOCATION, WEATHER_WITH_LOCATION_AND_DATE,
+        This UriMatcher will match each URI to the WEATHER, WEATHER_WITH_LOCATION, WEATHER_WITH_LOCATION_AND_DATE,
         and LOCATION integer constants defined above.  You can test this by uncommenting the
         testUriMatcher test within TestUriMatcher.
      */
+
     static UriMatcher buildUriMatcher() {
         // 1) The code passed into the constructor represents the code to return for the root
         // URI.  It's common to use NO_MATCH as the code for this case. Add the constructor below.
+        final UriMatcher matcher=new UriMatcher(UriMatcher.NO_MATCH);
+        final String authority=WeatherContract.CONTENT_AUTHORITY;
 
+        //gia kathe tipo URI ektelew antistoixisi me sigkekrimeno kwdiko
+        matcher.addURI(authority,WeatherContract.PATH_WEATHER, WEATHER);
+        matcher.addURI(authority,WeatherContract.PATH_WEATHER+"/*", WEATHER_WITH_LOCATION);
+        matcher.addURI(authority,WeatherContract.PATH_WEATHER+"/*/#", WEATHER_WITH_LOCATION_AND_DATE);
 
-        // 2) Use the addURI function to match each of the types.  Use the constants from
-        // WeatherContract to help define the types to the UriMatcher.
+        matcher.addURI(authority,WeatherContract.PATH_LOCATION, LOCATION);
 
-
-        // 3) Return the new matcher!
-        return null;
+        return matcher;
     }
 
     /*
@@ -133,6 +142,7 @@ public class WeatherProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
+        //instance tou DBHelper gia na mporw na ektelesw queries stin vasi dedomenwn
         mOpenHelper = new WeatherDbHelper(getContext());
         return true;
     }
@@ -145,16 +155,23 @@ public class WeatherProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
 
+        //enimerwnw ton Cursor ean tha epistrepsei item i dir (polla items)
         // Use the Uri Matcher to determine what kind of URI this is.
         final int match = sUriMatcher.match(uri);
 
         switch (match) {
             // Student: Uncomment and fill out these two cases
-//            case WEATHER_WITH_LOCATION_AND_DATE:
-//            case WEATHER_WITH_LOCATION:
+            case WEATHER_WITH_LOCATION_AND_DATE:
+                //returns item
+                return WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE;
+            case WEATHER_WITH_LOCATION:
+                //returns dir
+                return WeatherContract.WeatherEntry.CONTENT_TYPE;
             case WEATHER:
+                //returns dir
                 return WeatherContract.WeatherEntry.CONTENT_TYPE;
             case LOCATION:
+                //returns dir
                 return WeatherContract.LocationEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -166,6 +183,7 @@ public class WeatherProvider extends ContentProvider {
                         String sortOrder) {
         // Here's the switch statement that, given a URI, will determine what kind of request it is,
         // and query the database accordingly.
+        Log.e("Matcher",String.valueOf(sUriMatcher.match(uri)));
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
             // "weather/*/*"
@@ -181,19 +199,39 @@ public class WeatherProvider extends ContentProvider {
             }
             // "weather"
             case WEATHER: {
-                retCursor = null;
+                //no need for extra method since its in readable state and we wont create an difficult query
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             }
             // "location"
             case LOCATION: {
-                retCursor = null;
+                //no need for extra method since its in readable state and we wont create an difficult query
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             }
 
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw new UnsupportedOperationException("U6nknown uri: " + uri);
         }
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        if(retCursor!=null){
+            retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
         return retCursor;
     }
 

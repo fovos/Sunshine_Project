@@ -57,13 +57,13 @@ public class WeatherContract {
     /* Inner class that defines the table contents of the location table */
     public static final class LocationEntry implements BaseColumns {
 
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
+        public static final Uri CONTENT_URI =BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
 
-        public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
+        //prosdiorizw ti epistrefei o cursor (item i dir)
+        //return a list of items (DIR)
+        public static final String CONTENT_TYPE =ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
+        //return one unique item (ITEM)
+        public static final String CONTENT_ITEM_TYPE =ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
 
         // Table name
         public static final String TABLE_NAME = "location";
@@ -89,13 +89,13 @@ public class WeatherContract {
     /* Inner class that defines the table contents of the weather table */
     public static final class WeatherEntry implements BaseColumns {
 
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
+        //i appendpath prosthetei to "/" prin to path_weather
+        public static final Uri CONTENT_URI =BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
 
-        public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
+        //return a list of items (DIR)
+        public static final String CONTENT_TYPE =ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
+        //return one unique item (ITEM)
+        public static final String CONTENT_ITEM_TYPE =ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
 
         public static final String TABLE_NAME = "weather";
 
@@ -134,11 +134,11 @@ public class WeatherContract {
             Student: Fill in this buildWeatherLocation function
          */
         public static Uri buildWeatherLocation(String locationSetting) {
-            return null;
+            //i appendpath prosthetei automata to "/"
+            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
         }
 
-        public static Uri buildWeatherLocationWithStartDate(
-                String locationSetting, long startDate) {
+        public static Uri buildWeatherLocationWithStartDate(String locationSetting, long startDate) {
             long normalizedDate = normalizeDate(startDate);
             return CONTENT_URI.buildUpon().appendPath(locationSetting)
                     .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
