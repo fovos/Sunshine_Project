@@ -70,7 +70,12 @@ public class WeatherProvider extends ContentProvider {
                     WeatherContract.WeatherEntry.COLUMN_DATE + " = ? ";
 
     private Cursor getWeatherByLocationSetting(Uri uri, String[] projection, String sortOrder) {
+
+        //fetch Location Setting from the URI
         String locationSetting = WeatherContract.WeatherEntry.getLocationSettingFromUri(uri);
+        Log.v("Abstracted Loc Arg",locationSetting.toString());
+
+        //fetch Start Date from the URI
         long startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
 
         String[] selectionArgs;
@@ -83,11 +88,13 @@ public class WeatherProvider extends ContentProvider {
             selectionArgs = new String[]{locationSetting, Long.toString(startDate)};
             selection = sLocationSettingWithStartDateSelection;
         }
+        Log.v("selection",String.valueOf(selection));
+        Log.v("selection args",String.valueOf(selectionArgs[0]));
 
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
-                selection,
-                selectionArgs,
+                null,
+                null,
                 null,
                 null,
                 sortOrder
@@ -109,7 +116,7 @@ public class WeatherProvider extends ContentProvider {
                 sLocationSettingAndDaySelection,    //filter
                 new String[]{locationSetting, Long.toString(date)},
                 null,
-                null,   
+                null,
                 sortOrder
         );
     }
@@ -183,23 +190,30 @@ public class WeatherProvider extends ContentProvider {
                         String sortOrder) {
         // Here's the switch statement that, given a URI, will determine what kind of request it is,
         // and query the database accordingly.
-        Log.e("Matcher",String.valueOf(sUriMatcher.match(uri)));
+        Log.v("Content Prov QUERY URI",String.valueOf(uri));
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
             // "weather/*/*"
             case WEATHER_WITH_LOCATION_AND_DATE:
             {
+                Log.v("Case Weather w L D",String.valueOf(uri));
+
                 retCursor = getWeatherByLocationSettingAndDate(uri, projection, sortOrder);
                 break;
             }
             // "weather/*"
             case WEATHER_WITH_LOCATION: {
+                Log.v("Case Weather w L",String.valueOf(uri));
+
+                //operation via SQLITEQueryBuilder.query() method
                 retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
                 break;
             }
             // "weather"
             case WEATHER: {
-                //no need for extra method since its in readable state and we wont create an difficult query
+                Log.v("Case Weather",String.valueOf(uri));
+
+                //operation via dbhelper.query() method
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         WeatherContract.WeatherEntry.TABLE_NAME,
                         projection,
@@ -213,7 +227,8 @@ public class WeatherProvider extends ContentProvider {
             }
             // "location"
             case LOCATION: {
-                //no need for extra method since its in readable state and we wont create an difficult query
+                Log.v("Case Location",String.valueOf(uri));
+                //operation via dbhelper.query() method
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         WeatherContract.LocationEntry.TABLE_NAME,
                         projection,

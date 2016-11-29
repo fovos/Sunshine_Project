@@ -114,6 +114,8 @@ public class TestUtilities extends AndroidTestCase {
             return new TestContentObserver(ht);
         }
 
+        //CONSTRUCTOR
+        //handler delivers the onchange() method.
         private TestContentObserver(HandlerThread ht) {
             super(new Handler(ht.getLooper()));
             mHT = ht;
