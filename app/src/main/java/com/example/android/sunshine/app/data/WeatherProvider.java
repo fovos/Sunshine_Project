@@ -73,7 +73,7 @@ public class WeatherProvider extends ContentProvider {
 
         //fetch Location Setting from the URI
         String locationSetting = WeatherContract.WeatherEntry.getLocationSettingFromUri(uri);
-        Log.v("Abstracted Loc Arg",locationSetting.toString());
+        Log.v("Fetched Location Arg",locationSetting.toString());
 
         //fetch Start Date from the URI
         long startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
@@ -88,8 +88,8 @@ public class WeatherProvider extends ContentProvider {
             selectionArgs = new String[]{locationSetting, Long.toString(startDate)};
             selection = sLocationSettingWithStartDateSelection;
         }
-        Log.v("selection",String.valueOf(selection));
-        Log.v("selection args",String.valueOf(selectionArgs[0]));
+        Log.v("QueryBuilder selection",String.valueOf(selection));
+        Log.v("QueryBuilder selargs",String.valueOf(selectionArgs[0]));
 
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
@@ -190,7 +190,7 @@ public class WeatherProvider extends ContentProvider {
                         String sortOrder) {
         // Here's the switch statement that, given a URI, will determine what kind of request it is,
         // and query the database accordingly.
-        Log.v("Content Prov QUERY URI",String.valueOf(uri));
+        Log.v("Cont.Prov. QUERY() URI",String.valueOf(uri));
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
             // "weather/*/*"
@@ -244,6 +244,8 @@ public class WeatherProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("U6nknown uri: " + uri);
         }
+
+        //notify the observer if the cursor in not null
         if(retCursor!=null){
             retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         }
@@ -269,9 +271,22 @@ public class WeatherProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
+            case LOCATION:{
+                long _id=db.insert(WeatherContract.LocationEntry.TABLE_NAME,null,values);
+                if(_id>0){
+                    returnUri= WeatherContract.LocationEntry.buildLocationUri(_id);
+                }
+                else{
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        Log.e("Provider Inserted data",String.valueOf(returnUri));
+        //we notify our content observer. We must pass the initial URI (without arguments)
+        //otherwise the notifications will not reach the observers that look at the content_uri
         getContext().getContentResolver().notifyChange(uri, null);
         return returnUri;
     }
@@ -279,17 +294,34 @@ public class WeatherProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // Student: Start by getting a writable database
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsDeleted;
 
         // Student: Use the uriMatcher to match the WEATHER and LOCATION URI's we are going to
         // handle.  If it doesn't match these, throw an UnsupportedOperationException.
+        if(selection==null){
+            selection="1";
+        }
+        switch (match) {
+            case WEATHER: {
+                rowsDeleted = db.delete(WeatherContract.WeatherEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            }
+            case LOCATION: {
+                rowsDeleted = db.delete(WeatherContract.LocationEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            }
+            default:{
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
 
-        // Student: A null value deletes all rows.  In my implementation of this, I only notified
-        // the uri listeners (using the content resolver) if the rowsDeleted != 0 or the selection
-        // is null.
-        // Oh, and you should notify the listeners here.
-
-        // Student: return the actual rows deleted
-        return 0;
+        //notify registered observers
+        if(rowsDeleted!=0){
+            getContext().getContentResolver().notifyChange(uri,null);
+        }
+        return rowsDeleted;
     }
 
     private void normalizeDate(ContentValues values) {
@@ -301,15 +333,41 @@ public class WeatherProvider extends ContentProvider {
     }
 
     @Override
-    public int update(
-            Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        // Student: This is a lot like the delete function.  We return the number of rows impacted
-        // by the update.
-        return 0;
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+
+        //Get a writable Database
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+
+        int rowsUpdated;
+
+        //compare the urimatcher records with user input URI
+        switch (match) {
+            case WEATHER: {
+                rowsUpdated = db.update(WeatherContract.WeatherEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            }
+            case LOCATION: {
+                rowsUpdated = db.update(WeatherContract.LocationEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            }
+            default:{
+                //throw exception if not acceptable URI exists
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
+
+        //notify registered observers
+        if(rowsUpdated!=0){
+            getContext().getContentResolver().notifyChange(uri,null);
+        }
+
+        return rowsUpdated;
     }
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
+        //edw exoume arraylist apo ContentValues
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         switch (match) {
@@ -326,6 +384,7 @@ public class WeatherProvider extends ContentProvider {
                     }
                     db.setTransactionSuccessful();
                 } finally {
+                    //ean den kanoume settransactionsuccessfull den tha ginoun commit ta inserts stin db
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
